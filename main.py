@@ -12,11 +12,14 @@ clock = pygame.time.Clock()
 class Player(pygame.sprite.Sprite):
     def __init__(self, is_player) -> None:
         super().__init__()
+        self.y = 10
         if is_player:
-            self.paddle = pygame.Rect(10, 10, 10, 70)
+            self.x = 10
+            self.paddle = pygame.Rect(self.x, self.y, 10, 70)
             self.player = True
         else:
-            self.paddle = pygame.Rect(display_w - 20, 10, 10, 70)
+            self.x = display_w - 20
+            self.paddle = pygame.Rect(self.x, self.y, 10, 70)
             self.player = False
     def draw_paddle(self):
         pygame.draw.rect(display, 'WHITE', self.paddle)
@@ -38,8 +41,32 @@ class Player(pygame.sprite.Sprite):
         elif self.paddle.bottom >= display_h - 10:
             self.paddle.bottom = display_h - 10
     def update(self) -> None:
+        self.draw_paddle()
         self.player_input()
         self.check_collision()
+
+class Ball(pygame.sprite.Sprite):
+    def __init__(self) -> None:
+        super().__init__()
+        self.x = display_w/2
+        self.y = display_h/2
+        self.x_movement = 5
+        self.y_movement = 5
+        self.radius = 10
+        self.object = pygame.draw.circle(display, (66, 214, 255), (self.x, self.y), self.radius)
+    def draw_ball(self):
+        self.object = pygame.draw.circle(display, (66, 214, 255), (self.x, self.y), self.radius)
+    def movement(self):
+        self.x += self.x_movement
+    def check_collision(self):
+        if self.object.colliderect(player.paddle):
+            self.x_movement = -self.x_movement
+        elif self.object.colliderect(opp.paddle):
+            self.x_movement = -self.x_movement
+    def update(self) -> None:
+        self.draw_ball()
+        self.check_collision()
+        self.movement()
 
 
 def draw_bg():
@@ -69,6 +96,7 @@ def render_menu():
 
 player = Player(True)
 opp = Player(False)
+ball = Ball()
 
 game_active = False
  
@@ -83,10 +111,9 @@ while True:
     if game_active == True:
         display.fill((0,0,0))
         draw_bg()
-        player.draw_paddle()
         player.update()
-        opp.draw_paddle()
         opp.update()
+        ball.update()
     else:
         game_active = render_menu()
     pygame.display.update()
