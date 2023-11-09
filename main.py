@@ -8,6 +8,11 @@ pygame.display.set_caption('Pong')
 display_w, display_h = 800, 400
 display = pygame.display.set_mode((display_w, display_h))
 clock = pygame.time.Clock()
+pygame.mixer.init()
+bounce_sound = pygame.mixer.Sound('sounds/bounce-8bit.wav')
+bounce_sound.set_volume(0.1)
+win_sound = pygame.mixer.Sound('sounds/win.ogg')
+win_sound.set_volume(0.1)
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, is_player) -> None:
@@ -33,9 +38,9 @@ class Player(pygame.sprite.Sprite):
                 self.paddle.y += 10
         else:
             if keys[pygame.K_UP]:
-                self.paddle.y -= 5
+                self.paddle.y -= 10
             if keys[pygame.K_DOWN]:
-                self.paddle.y += 5
+                self.paddle.y += 10
     def check_collision(self):
         if self.paddle.top <= 10:
             self.paddle.top = 10
@@ -62,12 +67,16 @@ class Ball(pygame.sprite.Sprite):
         self.y += self.y_movement
     def check_collision(self):
         if self.object.colliderect(player.paddle):
+            pygame.mixer.Channel(1).play(bounce_sound)
             self.x_movement = -self.x_movement
         if self.object.colliderect(opp.paddle):
+            pygame.mixer.Channel(1).play(bounce_sound)
             self.x_movement = -self.x_movement
         if self.object.y <= 10:
+            pygame.mixer.Channel(1).play(bounce_sound)
             self.y_movement = -self.y_movement
         if self.object.y >= display_h - 20:
+            pygame.mixer.Channel(1).play(bounce_sound)
             self.y_movement = -self.y_movement
     def reset(self):
         self.x = display_w/2
@@ -80,15 +89,12 @@ class Ball(pygame.sprite.Sprite):
     def check_win(self):
         if self.object.x > display_w + self.radius:
             player.score += 1
+            pygame.mixer.Channel(2).play(win_sound)
             self.reset()
         if self.object.x < 0 - self.radius:
             opp.score += 1
-            self.reset()
-        # keys = pygame.key.get_pressed()
-        # if keys[pygame.K_SPACE]:
-        #     self.y_movement = random.randint(-10, 10)
-        #     self.x_movement = 8
-        
+            pygame.mixer.Channel(2).play(win_sound)
+            self.reset()       
     def update(self) -> None:
         self.draw_ball()
         self.check_collision()
