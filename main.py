@@ -8,6 +8,8 @@ pygame.display.set_caption('Pong')
 display_w, display_h = 800, 400
 display = pygame.display.set_mode((display_w, display_h))
 clock = pygame.time.Clock()
+
+#Sounds
 pygame.mixer.init()
 bounce_sound = pygame.mixer.Sound('sounds/bounce-8bit.wav')
 bounce_sound.set_volume(0.1)
@@ -20,11 +22,11 @@ class Player(pygame.sprite.Sprite):
         self.y = 10
         self.score = 0
         if is_player:
-            self.x = 10
+            self.x = 5
             self.paddle = pygame.Rect(self.x, self.y, 10, 70)
             self.player = True
         else:
-            self.x = display_w - 20
+            self.x = display_w - 15
             self.paddle = pygame.Rect(self.x, self.y, 10, 70)
             self.player = False
     def draw_paddle(self):
@@ -140,11 +142,38 @@ def score_board():
     
 def reset_prompt():
     prompt_font = pygame.font.Font('fonts/PixelifySans-VariableFont_wght.ttf', 20)
+    
     prompt_text = prompt_font.render(f"Press SPACE to start round", False, "WHITE")
     prompt_rect = prompt_text.get_rect(center = (display_w/2, display_h/2))
     pygame.draw.rect(display, "BLACK", prompt_rect)
-    # pygame.draw.rect(display, "BLACK", prompt_rect, 20)
+    
+    prompt_text2 = prompt_font.render(f"First to 10 wins!", False, "WHITE")
+    prompt_rect2 = prompt_text2.get_rect(center = (display_w/2 , display_h/2 + 50))
+
     display.blit(prompt_text, prompt_rect)
+    if player.score < 1 and opp.score < 1:
+        pygame.draw.rect(display, "BLACK", prompt_rect2)
+        display.blit(prompt_text2, prompt_rect2)
+
+def win_screen(winning_player:Player):
+    pygame.Surface.fill(display, 'BLACK')
+    prompt_font = pygame.font.Font('fonts/PixelifySans-VariableFont_wght.ttf', 24)
+    winner = winning_player
+    if winning_player.player:
+        player_type = "Player"
+    else:
+        player_type = "Computer"
+    prompt_text = prompt_font.render(f"{player_type} wins!", False, "WHITE")
+    prompt_rect = prompt_text.get_rect(center = (display_w/2, display_h/2))
+    pygame.draw.rect(display, "BLACK", prompt_rect)
+    
+    prompt_text2 = prompt_font.render(f"Press ESC to start a new game!", False, "WHITE")
+    prompt_rect2 = prompt_text2.get_rect(center = (display_w/2, display_h/2 + 50))
+    pygame.draw.rect(display, "BLACK", prompt_rect2)
+
+    display.blit(prompt_text, prompt_rect)
+    display.blit(prompt_text2, prompt_rect2)
+
 
 player = Player(True)
 opp = Player(False)
@@ -173,7 +202,12 @@ while True:
         score_board()
         if not ball.round_active:
             reset_prompt()
+        if player.score == 10:
+            win_screen(player)
+        if opp.score == 10:
+            win_screen(opp)
     else:
         game_active = render_menu()
+        ball.reset()
     pygame.display.update()
     clock.tick(60)
