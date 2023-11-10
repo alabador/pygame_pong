@@ -59,6 +59,7 @@ class Ball(pygame.sprite.Sprite):
         self.x_movement = 8
         self.y_movement = random.randint(-10, 10)
         self.radius = 10
+        self.round_active = True
         self.object = pygame.draw.circle(display, (66, 214, 255), (self.x, self.y), self.radius)
     def draw_ball(self):
         self.object = pygame.draw.circle(display, (66, 214, 255), (self.x, self.y), self.radius)
@@ -83,9 +84,11 @@ class Ball(pygame.sprite.Sprite):
         self.y = display_h/2
         self.x_movement = 0
         self.y_movement = 0
+        self.round_active = False
     def restart_movement(self):
         self.y_movement = random.randint(-10, 10)
         self.x_movement = 8
+        self.round_active = True
     def check_win(self):
         if self.object.x > display_w + self.radius:
             player.score += 1
@@ -135,6 +138,13 @@ def score_board():
     display.blit(player_score_text, player_score_rect)
     display.blit(cpu_score_text, cpu_score_rect)
     
+def reset_prompt():
+    prompt_font = pygame.font.Font('fonts/PixelifySans-VariableFont_wght.ttf', 20)
+    prompt_text = prompt_font.render(f"Press SPACE to start round", False, "WHITE")
+    prompt_rect = prompt_text.get_rect(center = (display_w/2, display_h/2))
+    pygame.draw.rect(display, "BLACK", prompt_rect)
+    # pygame.draw.rect(display, "BLACK", prompt_rect, 20)
+    display.blit(prompt_text, prompt_rect)
 
 player = Player(True)
 opp = Player(False)
@@ -152,7 +162,7 @@ while True:
                 game_active = False
                 player.score = 0
                 opp.score = 0
-            if event.key == pygame.K_SPACE:
+            if event.key == pygame.K_SPACE and not ball.round_active:
                 ball.restart_movement()
     if game_active == True:
         display.fill((0,0,0))
@@ -161,6 +171,8 @@ while True:
         opp.update()
         ball.update()
         score_board()
+        if not ball.round_active:
+            reset_prompt()
     else:
         game_active = render_menu()
     pygame.display.update()
