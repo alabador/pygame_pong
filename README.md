@@ -2,7 +2,7 @@
 
 A simple Pong game made using the PyGame framework.
 
-![alt tag](http://placecorgi.com/1200/650)
+![Demonstration of Pong Project built in PyGame](./pong-gif.gif)
 
 ## How It's Made:
 
