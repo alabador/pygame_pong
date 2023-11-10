@@ -44,11 +44,13 @@ class Player(pygame.sprite.Sprite):
             if keys[pygame.K_DOWN]:
                 self.paddle.y += 10
     def follow_ball(self):
+        delay_timer = pygame.time.get_ticks()
         ball_y = ball.y
-        if ball_y < self.paddle.y:
-            self.paddle.y -= 5
-        else: 
-            self.paddle.y += 5
+        if delay_timer > 1000:
+            if ball_y <= self.paddle.y:
+                self.paddle.y -= 5
+            else: 
+                self.paddle.y += 5
     def check_collision(self):
         if self.paddle.top <= 10:
             self.paddle.top = 10
@@ -59,7 +61,7 @@ class Player(pygame.sprite.Sprite):
         self.check_collision()
         if self.player:
             self.player_input()
-        else:
+        elif not self.player and ball.round_active:
             self.follow_ball()
 
 class Ball(pygame.sprite.Sprite):
@@ -187,9 +189,6 @@ def win_screen(winning_player:Player):
 player = Player(True)
 opp = Player(False)
 ball = Ball()
-
-delay_timer = pygame.USEREVENT + 1
-pygame.time.set_timer(delay_timer, 500)
 
 game_active = False
  
