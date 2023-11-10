@@ -43,6 +43,12 @@ class Player(pygame.sprite.Sprite):
                 self.paddle.y -= 10
             if keys[pygame.K_DOWN]:
                 self.paddle.y += 10
+    def follow_ball(self):
+        ball_y = ball.y
+        if ball_y < self.paddle.y:
+            self.paddle.y -= 5
+        else: 
+            self.paddle.y += 5
     def check_collision(self):
         if self.paddle.top <= 10:
             self.paddle.top = 10
@@ -50,8 +56,11 @@ class Player(pygame.sprite.Sprite):
             self.paddle.bottom = display_h - 10
     def update(self) -> None:
         self.draw_paddle()
-        self.player_input()
         self.check_collision()
+        if self.player:
+            self.player_input()
+        else:
+            self.follow_ball()
 
 class Ball(pygame.sprite.Sprite):
     def __init__(self) -> None:
@@ -147,7 +156,7 @@ def reset_prompt():
     prompt_rect = prompt_text.get_rect(center = (display_w/2, display_h/2))
     pygame.draw.rect(display, "BLACK", prompt_rect)
     
-    prompt_text2 = prompt_font.render(f"First to 10 wins!", False, "WHITE")
+    prompt_text2 = prompt_font.render(f"First to 5 wins!", False, "WHITE")
     prompt_rect2 = prompt_text2.get_rect(center = (display_w/2 , display_h/2 + 50))
 
     display.blit(prompt_text, prompt_rect)
@@ -179,6 +188,9 @@ player = Player(True)
 opp = Player(False)
 ball = Ball()
 
+delay_timer = pygame.USEREVENT + 1
+pygame.time.set_timer(delay_timer, 500)
+
 game_active = False
  
 while True:
@@ -202,9 +214,9 @@ while True:
         score_board()
         if not ball.round_active:
             reset_prompt()
-        if player.score == 10:
+        if player.score == 5:
             win_screen(player)
-        if opp.score == 10:
+        if opp.score == 5:
             win_screen(opp)
     else:
         game_active = render_menu()
